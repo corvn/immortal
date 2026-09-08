@@ -26,6 +26,7 @@ class PhotoDreamService : DreamService() {
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
     Log.i(TAG, "attached: dream starting")
+    DreamWakeBridge.attach(this)
     // Interactive so we receive touch and can exit on tap (verified on device).
     // Fullscreen for an immersive frame — tap-to-exit is the way out.
     isInteractive = true
@@ -74,6 +75,7 @@ class PhotoDreamService : DreamService() {
 
   override fun onDetachedFromWindow() {
     Log.i(TAG, "detached: dream ending")
+    DreamWakeBridge.detach(this)
     if (this::frame.isInitialized) frame.stop()
     super.onDetachedFromWindow()
   }

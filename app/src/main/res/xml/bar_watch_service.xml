@@ -2,13 +2,14 @@
 <!-- Copyright (c) 2026 Starbright Lab.
      This source code is licensed under the MIT license found in the
      LICENSE file in the root directory of this source tree. -->
-<!-- Watches window changes (to sync the quick-button cluster with the system top bar) and
-     hosts the phone-remote input surfaces. flagRetrieveInteractiveWindows + window content
-     are needed for getWindows() and reading the focused field for text entry.
+<!-- Watches window changes (to sync the quick-button cluster with the system top bar), window
+     state changes (to wake an active dream when Home Assistant Assist opens), and hosts the
+     phone-remote input surfaces. flagRetrieveInteractiveWindows + window content are needed for
+     getWindows() and reading the focused field for text entry.
      canPerformGestures lets the remote's touchpad dispatch taps/swipes (the reboot-proof,
      no-INJECT_EVENTS way to drive any app on this touchscreen). -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowsChanged"
+    android:accessibilityEventTypes="typeWindowsChanged|typeWindowStateChanged"
     android:accessibilityFlags="flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
     android:canPerformGestures="true"

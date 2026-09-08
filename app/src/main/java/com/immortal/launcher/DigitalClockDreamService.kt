@@ -17,6 +17,7 @@ class DigitalClockDreamService : DreamService() {
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
     Log.i(TAG, "attached: digital clock dream starting")
+    DreamWakeBridge.attach(this)
     isInteractive = true
     isFullscreen = true
     isScreenBright = true
@@ -39,6 +40,7 @@ class DigitalClockDreamService : DreamService() {
 
   override fun onDetachedFromWindow() {
     Log.i(TAG, "detached: digital clock dream ending")
+    DreamWakeBridge.detach(this)
     handler.removeCallbacksAndMessages(null)
     super.onDetachedFromWindow()
   }

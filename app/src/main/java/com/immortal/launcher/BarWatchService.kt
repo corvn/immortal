@@ -35,7 +35,14 @@ class BarWatchService : AccessibilityService() {
   }
 
   override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-    if (event?.eventType == AccessibilityEvent.TYPE_WINDOWS_CHANGED) updateBar()
+    when (event?.eventType) {
+      AccessibilityEvent.TYPE_WINDOWS_CHANGED -> updateBar()
+      AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
+        if (DreamWakeBridge.isHomeAssistantAssistActivity(event.packageName, event.className)) {
+          DreamWakeBridge.wakeForVoiceAssistant()
+        }
+      }
+    }
   }
 
   override fun onUnbind(intent: android.content.Intent?): Boolean {
