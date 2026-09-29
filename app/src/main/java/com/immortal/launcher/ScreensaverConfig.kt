@@ -213,6 +213,10 @@ object ScreensaverConfig {
       // dashboard path to deep-link to (e.g. "today-home/security"), and "" opens the
       // user's default dashboard. Only offered when an HA app is installed.
       val dismissHaDashboard: String? = null,
+      // Dismiss the screensaver on its own when the Portal's camera sees someone arrive, exactly
+      // as if they had tapped it (so the dismiss target above still applies). Off by default;
+      // needs Meta's own presence detector (see [PresenceHub.lastArrivalAtMs]).
+      val dismissOnArrival: Boolean = false,
       // Crop vertical (portrait) photos by ~20% (top & bottom) so they look less tall/panoramic.
       val cropVertical: Boolean = false,
       // Fill letterbox sidebars in fit mode with a blurred copy of the photo. On by default.
@@ -318,6 +322,7 @@ object ScreensaverConfig {
         welcomeEnabled = p.getBoolean("welcome_enabled", true),
         dismissAppComponent = p.getString("dismiss_app_component", null),
         dismissHaDashboard = p.getString("dismiss_ha_dashboard", null),
+        dismissOnArrival = p.getBoolean("dismiss_on_arrival", false),
         cropVertical = p.getBoolean("crop_vertical", false),
         blurBackground = p.getBoolean("blur_background", true),
     )
@@ -339,6 +344,9 @@ object ScreensaverConfig {
 
   fun setGestureWave(c: Context, on: Boolean) =
       prefs(c).edit().putBoolean("gesture_wave", on).apply()
+
+  fun setDismissOnArrival(c: Context, on: Boolean) =
+      prefs(c).edit().putBoolean("dismiss_on_arrival", on).apply()
 
   /** Keep the idle timeout sane (0 = off, else 1…120 min). */
   fun clampIdle(min: Int): Int = if (min <= 0) 0 else min.coerceIn(1, 120)

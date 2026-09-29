@@ -218,6 +218,16 @@ object SettingsDomains {
                           "Tapping the screensaver wakes the Portal. By default that brings you home to " +
                               "Immortal - or pick an app (like Home Assistant) to drop straight into.",
                       visible = { _, s -> s.enabled }),
+                  BoolSpec(
+                      "dismissOnArrival",
+                      "Exit when someone walks in",
+                      get = { it.dismissOnArrival },
+                      set = ScreensaverConfig::setDismissOnArrival,
+                      help =
+                          "When the Portal's camera sees someone arrive, leave the screensaver as if " +
+                              "they had tapped it - so a wall dashboard is already up when you get " +
+                              "there. Uses the Portal's own presence detector.",
+                      visible = { _, s -> s.enabled }),
                   DerivedSpec("source", get = { it.source }),
                   DerivedSpec("folderPath", get = { it.folderPath ?: "" }),
                   DerivedSpec("albumUrl", get = { it.albumUrl ?: "" }),

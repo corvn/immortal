@@ -97,6 +97,16 @@ enum class DreamStopVerdict {
   SUPPRESSED,
 }
 
+/**
+ * True when [next] is someone walking into an empty room, as seen by Meta's own detector. The
+ * proxy can't count: it reports PRESENT *because* the dream started, so treating that as an
+ * arrival would dismiss every screensaver the moment it appeared. Pure → JVM-unit-tested.
+ */
+fun isArrival(prev: PresenceState, next: PresenceState): Boolean =
+    next.source == PresenceSource.PORTAL &&
+        next.presence == Presence.PRESENT &&
+        prev.presence == Presence.ABSENT
+
 /** Grace after a user tap during which a dream-stop is read as a deliberate exit, not presence. */
 const val USER_EXIT_GRACE_MS = 4000L
 
@@ -162,6 +172,11 @@ object PresenceHub {
 
   @Volatile
   var current: PresenceState = PresenceState(Presence.UNKNOWN, ScreenState.OFF, confident = false, sinceMs = 0L)
+    private set
+
+  /** Wall-clock millis of the latest [isArrival], or 0 if none yet. Read by [ArrivalDismiss]. */
+  @Volatile
+  var lastArrivalAtMs: Long = 0L
     private set
 
   /** Subscribe (in-process). Immediately replays the current state to the new listener. */
@@ -288,6 +303,7 @@ object PresenceHub {
       return // no meaningful change; don't churn listeners/broadcasts
     }
     current = next
+    if (isArrival(prev, next)) lastArrivalAtMs = next.sinceMs
     Log.i(
         TAG,
         "presence ${prev.presence}/${prev.screen} -> ${next.presence}/${next.screen} " +

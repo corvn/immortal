@@ -38,6 +38,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 class PhotoFramePreviewActivity : ComponentActivity() {
   private lateinit var frame: PhotoFrameController
   private var powerReceiver: BroadcastReceiver? = null
+  private var arrival: ArrivalDismiss.Watch? = null
 
   // Read from the *latest* intent (onCreate or onNewIntent), never captured in a closure:
   // this activity is singleTask, so a relaunch while the frame is already up reuses the live
@@ -132,6 +133,11 @@ class PhotoFramePreviewActivity : ComponentActivity() {
     } else {
       // A screensaver session is running: start (or keep) the idle screen-off countdown.
       SleepScheduler.onScreensaverStarted(this)
+      // "Exit when someone walks in", for the continuation frame only: that frame IS the
+      // screensaver, so an arrival dismisses it like a tap. Read launchDismissOnExit when it
+      // fires, since a singleTask relaunch can change it (onNewIntent).
+      arrival =
+          ArrivalDismiss.watch(this) { if (launchDismissOnExit) frame.onExit?.invoke() }
       if (DreamPolicy.hasBattery(this)) {
         powerReceiver =
             object : BroadcastReceiver() {
@@ -201,6 +207,7 @@ class PhotoFramePreviewActivity : ComponentActivity() {
 
   override fun onDestroy() {
     powerReceiver?.let { runCatching { unregisterReceiver(it) } }
+    arrival?.stop()
     nightWatch.removeCallbacks(nightWatchTick)
     if (this::frame.isInitialized) frame.stop()
     super.onDestroy()

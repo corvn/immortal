@@ -22,6 +22,7 @@ import android.view.MotionEvent
  */
 class PhotoDreamService : DreamService() {
   private lateinit var frame: PhotoFrameController
+  private var arrival: ArrivalDismiss.Watch? = null
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
@@ -53,6 +54,8 @@ class PhotoDreamService : DreamService() {
     }
     setContentView(root)
     frame.start()
+    // "Exit when someone walks in": an arrival dismisses the dream exactly like a tap.
+    arrival = ArrivalDismiss.watch(this) { frame.onExit?.invoke() }
   }
 
   override fun onDreamingStarted() {
@@ -74,6 +77,7 @@ class PhotoDreamService : DreamService() {
 
   override fun onDetachedFromWindow() {
     Log.i(TAG, "detached: dream ending")
+    arrival?.stop()
     if (this::frame.isInitialized) frame.stop()
     super.onDetachedFromWindow()
   }
