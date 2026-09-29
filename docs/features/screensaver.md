@@ -57,6 +57,15 @@ Immortal can't read Meta's presence signal directly (see
 dream/sleep lifecycle. The design notes go deep on this:
 [Multi-room audio → Presence](../design/multi-room-audio.md).
 
+### Exit when someone walks in
+
+Turn on **Exit when someone walks in** (next to **Open when you tap to exit**) and the screensaver
+dismisses itself when the Portal's camera sees someone arrive, exactly as if they had tapped it, so
+the tap target still applies. Point that target at Home Assistant and a wall dashboard is already up
+by the time you reach the Portal. It relies on Meta's own presence detector (see
+[Smart home → Presence](smart-home.md#presence)); the dream/sleep proxy can't tell an arrival apart
+from the screensaver starting, so it never triggers this.
+
 ## Overnight night clock
 
 During an overnight window the screensaver can show a **dimmed clock** instead of going fully

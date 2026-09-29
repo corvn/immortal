@@ -77,6 +77,14 @@ import kotlin.concurrent.thread
 object ScreensaverDismiss {
   private const val TAG = "ImmortalDismiss"
 
+  /**
+   * Launch an app the way a home screen does. RESET_TASK_IF_NEEDED brings an already-running
+   * app's task to the front instead of stacking a new copy of its launch activity on top: the
+   * HA companion's LaunchActivity starts a fresh WebViewActivity every time it runs, so a bare
+   * NEW_TASK launch piled up dashboard instances on each dismiss (measured on a Portal, API 29).
+   */
+  const val LAUNCHER_FLAGS = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
+
   // Both flavours of the official HA Android app; the minimal (F-Droid) build is what
   // no-GMS devices like the Portal run, the other is the Play build.
   private val HA_PACKAGES =
@@ -126,7 +134,7 @@ object ScreensaverDismiss {
             val intent =
                 if (path.isBlank()) {
                   context.packageManager.getLaunchIntentForPackage(pkg)?.addFlags(
-                      Intent.FLAG_ACTIVITY_NEW_TASK) ?: return false
+                      LAUNCHER_FLAGS) ?: return false
                 } else {
                   Intent(Intent.ACTION_VIEW, Uri.parse(haDeepLink(path)))
                       .setPackage(pkg)
@@ -146,7 +154,7 @@ object ScreensaverDismiss {
               Intent(Intent.ACTION_MAIN)
                   .addCategory(Intent.CATEGORY_LAUNCHER)
                   .setComponent(cn)
-                  .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                  .addFlags(LAUNCHER_FLAGS))
           true
         }
         .onFailure { Log.w(TAG, "couldn't open dismiss target $cn: $it") }
