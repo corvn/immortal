@@ -85,6 +85,21 @@ object ScreensaverDismiss {
    */
   const val LAUNCHER_FLAGS = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
 
+  /**
+   * [pkg]'s launcher intent in the exact shape a home screen sends: MAIN + LAUNCHER + component,
+   * and no package. Android only reuses a running task when the new intent filter-equals the one
+   * that started it, and [android.content.pm.PackageManager.getLaunchIntentForPackage] also sets
+   * the package, so it never matched a task our launcher (or any launcher) had started — the
+   * reuse failed and a new dashboard was stacked anyway. Null if [pkg] has no launcher activity.
+   */
+  fun launcherIntent(context: Context, pkg: String): Intent? {
+    val cn = context.packageManager.getLaunchIntentForPackage(pkg)?.component ?: return null
+    return Intent(Intent.ACTION_MAIN)
+        .addCategory(Intent.CATEGORY_LAUNCHER)
+        .setComponent(cn)
+        .addFlags(LAUNCHER_FLAGS)
+  }
+
   // Both flavours of the official HA Android app; the minimal (F-Droid) build is what
   // no-GMS devices like the Portal run, the other is the Play build.
   private val HA_PACKAGES =
@@ -133,8 +148,7 @@ object ScreensaverDismiss {
       return runCatching {
             val intent =
                 if (path.isBlank()) {
-                  context.packageManager.getLaunchIntentForPackage(pkg)?.addFlags(
-                      LAUNCHER_FLAGS) ?: return false
+                  launcherIntent(context, pkg) ?: return false
                 } else {
                   Intent(Intent.ACTION_VIEW, Uri.parse(haDeepLink(path)))
                       .setPackage(pkg)
