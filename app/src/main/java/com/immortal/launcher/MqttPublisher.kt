@@ -434,7 +434,7 @@ class MqttPublisher(private val appContext: Context) {
           appContext.startActivity(
               Intent(Intent.ACTION_VIEW, Uri.parse(t)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
       pm.getLaunchIntentForPackage(t) != null ->
-          appContext.startActivity(pm.getLaunchIntentForPackage(t)!!.addFlags(ScreensaverDismiss.LAUNCHER_FLAGS))
+          appContext.startActivity(ScreensaverDismiss.launcherIntent(appContext, t)!!)
       else -> {
         val pkg = ScreensaverDismiss.installedHaPackage(appContext) ?: return false
         appContext.startActivity(
