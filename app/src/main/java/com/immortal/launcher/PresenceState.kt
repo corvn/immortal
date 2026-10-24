@@ -211,7 +211,13 @@ object PresenceHub {
           override fun onReceive(c: Context, intent: Intent) {
             when (intent.action) {
               Intent.ACTION_DREAMING_STARTED -> onDreamStarted(c)
-              Intent.ACTION_USER_PRESENT -> onInteraction(c)
+              Intent.ACTION_USER_PRESENT -> {
+                onInteraction(c)
+                // A tap on a dark overnight screen lands on the dream, not HomeActivity, so this is
+                // the only wake signal SleepScheduler gets. Without it the racing redream sees no
+                // recent user wake and reblanks the screen instantly.
+                SleepScheduler.onInteraction(c)
+              }
               Intent.ACTION_SCREEN_OFF -> onScreenOff(c)
               Intent.ACTION_POWER_CONNECTED,
               Intent.ACTION_POWER_DISCONNECTED -> refreshConfidence(c)
